@@ -1,0 +1,6 @@
+pip install pandas streamlit langchain sqlit-utils fastapi uvicorn redis psycopg2-binary
+
+
+
+
+-pip install streamlit

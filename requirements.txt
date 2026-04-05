@@ -1,0 +1,76 @@
+streamlit==1.28.0
+pandas==2.0.3
+openpyxl==3.1.2
+        st.sidebar.error("Invalid Credentials")
+        return False
+    return False
+
+# ---------------- MAIN APP ---------------- #
+if login():
+
+    st.title("🏥 Advanced Healthcare Dashboard")
+
+    menu = ["Add Data", "View Data", "Analytics"]
+    choice = st.sidebar.selectbox("Menu", menu)
+
+    # -------- ADD DATA -------- #
+    if choice == "Add Data":
+        st.subheader("Add Patient Data")
+
+        name = st.text_input("Enter Name")
+        bp = st.number_input("Blood Pressure", 0, 300)
+        sugar = st.number_input("Sugar Level", 0, 500)
+
+        if st.button("Save Data"):
+            if name == "":
+                st.warning("Please enter name")
+            else:
+                insert_data(name, bp, sugar)
+                st.success("Data saved successfully!")
+
+    # -------- VIEW DATA -------- #
+    elif choice == "View Data":
+        st.subheader("Stored Data")
+
+        df = get_data()
+
+        # Search filter
+        search = st.text_input("Search by Name")
+        if search:
+            df = df[df["name"].str.contains(search, case=False)]
+
+        st.dataframe(df)
+
+        # Delete option
+        st.subheader("Delete Record")
+        record_id = st.number_input("Enter ID to delete", 1)
+        if st.button("Delete"):
+            delete_data(record_id)
+            st.success("Record deleted!")
+
+    # -------- ANALYTICS -------- #
+    elif choice == "Analytics":
+        st.subheader("Health Analytics")
+
+        df = get_data()
+
+        if not df.empty:
+            st.write("### Blood Pressure Chart")
+            st.line_chart(df["bp"])
+
+            st.write("### Sugar Level Chart")
+            st.bar_chart(df["sugar"])
+
+            # Health Status
+            st.write("### Health Status")
+            for i, row in df.iterrows():
+                status = "Normal"
+                if row["bp"] > 140 or row["sugar"] > 180:
+                    status = "⚠ High Risk"
+                st.write(f"{row['name']} → {status}")
+
+        else:
+            st.info("No data available")
+
+else:
+    st.title("🔐 Please Login to Continue")
